@@ -88,7 +88,7 @@ def write_jsonl_information(dict_info, file_path, scrape_time, expiry_threshold=
     with open(file_path, "w") as file:
         if expiry_threshold=="":
             file.write(json.dumps({"scrape_time:": scrape_time,
-                               "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time))}), + "\n")
+                               "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time))}) + "\n")
         else:
             file.write(json.dumps({"scrape_time:": scrape_time,
                                "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time)),
