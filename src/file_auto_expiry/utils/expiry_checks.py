@@ -4,7 +4,7 @@ from ..data.expiry_constants import *
 from ..data.expiry_constants import DIRECTORIES_TO_IGNORE
 from ..data.tuples import *
 from .file_creator import *
-
+import datetime
 
 def is_expired(path, expiry_threshold):
     """ Interface function to return if a file-structure is expired or not. 
@@ -49,6 +49,7 @@ def is_expired_filepath(path, file_stat, expiry_threshold):
     atime = (file_stat.st_atime) 
     ctime = (file_stat.st_ctime) 
     mtime = (file_stat.st_mtime) 
+
     # If all atime, ctime, mtime are more than the expiry date limit,
     # then this return true, along with the other information  
     return expiry_tuple(
@@ -97,9 +98,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
     recent_mtime = folder_stat.st_mtime
     folder_creator = get_file_creator(folder_path)
     file_creators.add(folder_creator)
-    is_expired_flag = timestamps_are_expired(recent_ctime, 
-                                             recent_mtime, 
-                                             expiry_threshold)
+    is_expired_flag = True
 
     if check_folder_if_known(path=folder_path):
         return expiry_tuple(is_expired_flag, file_creators, recent_atime, 
@@ -116,9 +115,9 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
         file_expiry_information = is_expired(path=str(member_file_path), 
                                              expiry_threshold=expiry_threshold)
 
-        if file_expiry_information.is_expired: 
+        if file_expiry_information.is_expired is False: 
             # First val in the expiry is always the boolean true or false
-            is_expired_flag = True
+            is_expired_flag = False
 
         creators = file_expiry_information.creators # collects tuple of (name, uid, gid)
         # If file_expiry_information is from a folder, it should already contain a set
