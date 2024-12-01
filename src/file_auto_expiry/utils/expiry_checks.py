@@ -53,20 +53,19 @@ def is_expired_filepath(path, file_stat, expiry_threshold):
     # If all atime, ctime, mtime are more than the expiry date limit,
     # then this return true, along with the other information  
     return expiry_tuple(
-        is_expired=timestamps_are_expired(ctime, mtime, 
+        is_expired=timestamps_are_expired(atime, ctime, mtime, 
                                           expiry_threshold),
         creators={creator}, 
         atime=atime, 
         ctime=ctime, 
         mtime=mtime)
 
-def timestamps_are_expired(ctime, mtime, expiry_threshold):
+def timestamps_are_expired(atime, ctime, mtime, expiry_threshold):
     """
     Checks if all atime, ctime, and mtime are expired. 
     Returns True when all are expired. 
     """
-    return ((ctime < expiry_threshold) and 
-            (mtime < expiry_threshold))
+    return ((atime < expiry_threshold) and (ctime < expiry_threshold) and (mtime < expiry_threshold))
 
 def is_expired_link(path, file_stat, expiry_threshold):
     """
@@ -98,7 +97,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
     recent_mtime = folder_stat.st_mtime
     folder_creator = get_file_creator(folder_path)
     file_creators.add(folder_creator)
-    is_expired_flag = True
+    is_expired_flag = timestamps_are_expired(recent_atime, recent_ctime, recent_mtime, expiry_threshold)
 
     if check_folder_if_known(path=folder_path):
         return expiry_tuple(is_expired_flag, file_creators, recent_atime, 
@@ -109,7 +108,6 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
     for member_file_name in os.listdir(dirfd):
         # Tracks the unique names of file creators in the directory
         member_file_path = os.path.join(folder_path, member_file_name)
-        print(member_file_path)
         if not os.path.exists(member_file_path) or os.path.islink(member_file_path):
             continue
 
@@ -117,7 +115,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
                                              expiry_threshold=expiry_threshold)
 
         if file_expiry_information.is_expired is False: 
-            # First val in the expiry is always the boolean true or false
+            # if any file is not expired, then set the expiry flag to false
             is_expired_flag = False
 
         creators = file_expiry_information.creators # collects tuple of (name, uid, gid)
