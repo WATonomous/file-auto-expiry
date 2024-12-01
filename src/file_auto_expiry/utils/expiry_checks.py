@@ -105,10 +105,11 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
                             recent_ctime, recent_mtime )
     
     # Check expiry status of all files and subdirectories within the folder
-    for member_file_name in os.listdir(folder_path):
+    dirfd = os.open(folder_path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOATIME)
+    for member_file_name in os.listdir(dirfd):
         # Tracks the unique names of file creators in the directory
         member_file_path = os.path.join(folder_path, member_file_name)
-
+        print(member_file_path)
         if not os.path.exists(member_file_path) or os.path.islink(member_file_path):
             continue
 
