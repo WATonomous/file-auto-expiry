@@ -54,8 +54,9 @@ class TestUtils(unittest.TestCase):
 
     @patch('os.listdir')
     @patch("os.stat")
+    @patch("os.open")
     @patch("utils.expiry_checks.is_expired")
-    def test_is_expired_folder(self, patch_expired, patch_stat, patch_path):
+    def test_is_expired_folder(self, patch_expired, patch_open, patch_stat, patch_path):
         """
         Tests the is_expired_folder function. This should return 
         True (is_expired) if all subdirectories and files are also expired. 

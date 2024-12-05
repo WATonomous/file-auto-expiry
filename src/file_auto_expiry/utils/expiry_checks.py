@@ -1,9 +1,9 @@
 import os
 import stat
-from ..data.expiry_constants import *
-from ..data.expiry_constants import DIRECTORIES_TO_IGNORE
-from ..data.tuples import *
-from .file_creator import *
+from src.file_auto_expiry.data.expiry_constants import *
+from src.file_auto_expiry.data.expiry_constants import DIRECTORIES_TO_IGNORE
+from src.file_auto_expiry.data.tuples import *
+from src.file_auto_expiry.utils.file_creator import *
 import datetime
 
 def is_expired(path, expiry_threshold):
@@ -133,7 +133,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
         recent_atime = max(recent_atime, file_expiry_information.atime)
         recent_ctime = max(recent_ctime, file_expiry_information.ctime)
         recent_mtime = max(recent_mtime, file_expiry_information.mtime)
-    
+    os.close(dirfd)
     return expiry_tuple(is_expired_flag, file_creators, recent_atime, 
                         recent_ctime, recent_mtime)
 

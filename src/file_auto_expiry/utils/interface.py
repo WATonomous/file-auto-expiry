@@ -3,9 +3,9 @@ import pwd
 import json
 import datetime
 import time
-from ..data.expiry_constants import *
-from ..data.tuples import *
-from .expiry_checks import is_expired
+from src.file_auto_expiry.data.expiry_constants import *
+from src.file_auto_expiry.data.tuples import *
+from src.file_auto_expiry.utils.expiry_checks import is_expired
 
 def get_file_creator(path):
     """
@@ -48,6 +48,7 @@ def scan_folder_for_expired(folder_path, expiry_threshold):
             # path, creator tuple (name, uid, gid), atime, ctime, mtime
             yield entry_path, expiry_result.is_expired, expiry_result.creators, \
                 expiry_result.atime, expiry_result.ctime, expiry_result.mtime
+    os.close(dirfd)
 
 def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold):
     """
