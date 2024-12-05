@@ -1,10 +1,10 @@
 import os
 import pwd
-from ..data.tuples import *
+from src.file_auto_expiry.data.tuples import *
 
 def get_file_creator(path):
     """
-    Returns a tuple including the file creator username, 
+    Returns a tuple including the file creator username,  
     their UID, and GID in that order respectively. 
 
     string file_path: The absolute path of the file

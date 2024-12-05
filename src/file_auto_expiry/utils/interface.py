@@ -3,9 +3,9 @@ import pwd
 import json
 import datetime
 import time
-from ..data.expiry_constants import *
-from ..data.tuples import *
-from .expiry_checks import is_expired
+from src.file_auto_expiry.data.expiry_constants import *
+from src.file_auto_expiry.data.tuples import *
+from src.file_auto_expiry.utils.expiry_checks import is_expired
 
 def get_file_creator(path):
     """
@@ -39,13 +39,16 @@ def scan_folder_for_expired(folder_path, expiry_threshold):
     """
     if not os.path.isdir(folder_path) :
         raise Exception("Given path directory "+ folder_path)
-    
-    for entry in os.scandir(folder_path):
-        if os.path.exists(entry.path):
-            expiry_result = is_expired(entry.path, expiry_threshold)
+
+    dirfd = os.open(folder_path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOATIME)
+    for entry in os.scandir(dirfd):
+        entry_path = os.path.join(folder_path, entry.path)
+        if os.path.exists(entry_path):
+            expiry_result = is_expired(entry_path, expiry_threshold)
             # path, creator tuple (name, uid, gid), atime, ctime, mtime
-            yield entry.path, expiry_result.is_expired, expiry_result.creators, \
+            yield entry_path, expiry_result.is_expired, expiry_result.creators, \
                 expiry_result.atime, expiry_result.ctime, expiry_result.mtime
+    os.close(dirfd)
 
 def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold):
     """
