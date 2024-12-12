@@ -1,6 +1,6 @@
 import os
 import pwd
-from src.file_auto_expiry.data.tuples import *
+from ..data.tuples import *
 
 def get_file_creator(path):
     """

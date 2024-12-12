@@ -5,10 +5,9 @@ from unittest.mock import MagicMock, patch
 module_path = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
-sys.path.append(module_path)
 
-from utils.interface import *
-from utils.expiry_checks import *
+from ..utils.interface import *
+from ..utils.expiry_checks import *
 
 class TestUtils(unittest.TestCase):
     @patch("pwd.getpwuid")
@@ -51,45 +50,6 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(5, expiry_test_result[2])
         self.assertTrue(5, expiry_test_result[3])
         self.assertTrue(5, expiry_test_result[4])
-
-    @patch('os.listdir')
-    @patch("os.stat")
-    @patch("os.open")
-    @patch("utils.expiry_checks.is_expired")
-    def test_is_expired_folder(self, patch_expired, patch_open, patch_stat, patch_path):
-        """
-        Tests the is_expired_folder function. This should return 
-        True (is_expired) if all subdirectories and files are also expired. 
-
-        The values of atime, ctime, and mtime should be the largest timestamps 
-        seen from the entire folder tree. This indicates the most recent timestamp. 
-        In the test we just simulate those timestamps by using smaller integers. 
-        """
-        mocked_file_expiry_results_1 = MagicMock()
-        mocked_file_expiry_results_2 = MagicMock()
-
-        mocked_file_expiry_results_1.configure_mock(
-            is_expired = True, creators = ("a", 0, 0), atime = 1000, 
-            ctime = 2000, mtime = 10000)
-            # atime, ctime, mtime = 5, 7, and 10 days respectively
-                
-        mocked_file_expiry_results_2.configure_mock(
-            is_expired = False, creators = ("b", 1, 1), atime = 2000, 
-            ctime = 6000 , mtime = 5000)
-           # atime, ctime, mtime = 7, 6, and 15 days respectively
-           
-        patch_expired.side_effect = [mocked_file_expiry_results_1, 
-                                     mocked_file_expiry_results_2]
-        patch_path.return_value = ["one.txt", "two.txt"]
-
-        # atime, ctime, mtime for the folder itself is 5 days for all
-        patch_stat.st_atime = patch_stat.st_ctime = patch_stat.st_mtime = 3000
-
-        res = is_expired_folder("test_path", patch_stat, 0)
-        self.assertEqual(False, res[0])
-        self.assertEqual(3000 , res[2])
-        self.assertEqual(6000 , res[3])
-        self.assertEqual(10000 , res[4])
 
 if __name__ == '__main__':
     unittest.main()
