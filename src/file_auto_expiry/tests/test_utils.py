@@ -6,8 +6,8 @@ module_path = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
-from utils.interface import *
-from utils.expiry_checks import *
+from ..utils.interface import *
+from ..utils.expiry_checks import *
 
 class TestUtils(unittest.TestCase):
     @patch("pwd.getpwuid")
