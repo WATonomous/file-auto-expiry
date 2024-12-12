@@ -3,9 +3,9 @@ import pwd
 import json
 import datetime
 import time
-from src.file_auto_expiry.data.expiry_constants import *
-from src.file_auto_expiry.data.tuples import *
-from src.file_auto_expiry.utils.expiry_checks import is_expired
+from ..data.expiry_constants import *
+from ..data.tuples import *
+from .expiry_checks import is_expired
 
 def get_file_creator(path):
     """
