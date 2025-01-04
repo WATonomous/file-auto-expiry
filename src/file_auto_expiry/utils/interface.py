@@ -140,7 +140,8 @@ def collect_creator_information(path_info_file, save_file, scrape_time):
                         creator_info[user[1]]["paths"][path_data["path"]] = time_vars
                         
                     else:
-                        creator_info[user[1]] = {
+                        if isinstance(user[1], int):
+                            creator_info[user[1]] = {
                             "paths": {path_data["path"]: time_vars}, 
                             "name": user[0],
                             "uid": user[1],
