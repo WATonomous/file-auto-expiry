@@ -92,7 +92,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
     """
     file_creators = set()
     # timestamps for the folder itself 
-    recent_atime = 0
+    recent_atime = folder_stat.st_atime
     recent_ctime = folder_stat.st_ctime
     recent_mtime = folder_stat.st_mtime
     folder_creator = get_file_creator(folder_path)
