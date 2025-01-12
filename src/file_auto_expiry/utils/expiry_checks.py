@@ -6,7 +6,7 @@ from ..data.tuples import *
 from .file_creator import *
 import datetime
 
-def is_expired(path, expiry_threshold):
+def is_expired(path, expiry_threshold, check_folder_atime):
     """ Interface function to return if a file-structure is expired or not. 
     TODO: Provide implementation for character device files, blocks, sockets. 
     """
@@ -16,7 +16,7 @@ def is_expired(path, expiry_threshold):
         return is_expired_filepath(path, path_stat, expiry_threshold)
     
     elif stat.S_ISDIR(path_stat.st_mode): # folder
-        return is_expired_folder(path, path_stat, expiry_threshold)
+        return is_expired_folder(path, path_stat, expiry_threshold, check_folder_atime)
     
     elif stat.S_ISLNK(path_stat.st_mode): # symlink
         return is_expired_link(path, path_stat, expiry_threshold)
@@ -82,7 +82,7 @@ def is_expired_link(path, file_stat, expiry_threshold):
                                expiry_threshold=expiry_threshold)
     
 
-def is_expired_folder(folder_path, folder_stat, expiry_threshold):
+def is_expired_folder(folder_path, folder_stat, expiry_threshold, check_folder_atime):
     """
     Goes through all files in a folder. Returns true if ALL files in directory 
     are expire. 
@@ -92,7 +92,10 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
     """
     file_creators = set()
     # timestamps for the folder itself 
-    recent_atime = folder_stat.st_atime
+    recent_atime = 0 
+    if check_folder_atime:
+        recent_atime = folder_stat.st_atime
+
     recent_ctime = folder_stat.st_ctime
     recent_mtime = folder_stat.st_mtime
     folder_creator = get_file_creator(folder_path)
@@ -112,7 +115,8 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold):
             continue
 
         file_expiry_information = is_expired(path=str(member_file_path), 
-                                             expiry_threshold=expiry_threshold)
+                                             expiry_threshold=expiry_threshold,
+                                             check_folder_atime=check_folder_atime)
 
         if file_expiry_information.is_expired is False: 
             # if any file is not expired, then set the expiry flag to false
