@@ -29,7 +29,7 @@ def notify_file_creators():
     Currently is just the code to print information to a text file
     """
 
-def scan_folder_for_expired(folder_path, expiry_threshold):
+def scan_folder_for_expired(folder_path, expiry_threshold, check_folder_atime):
     """Generator function which iterates the expired top level folders
     in a given directory.
     
@@ -44,13 +44,13 @@ def scan_folder_for_expired(folder_path, expiry_threshold):
     for entry in os.scandir(dirfd):
         entry_path = os.path.join(folder_path, entry.path)
         if os.path.exists(entry_path):
-            expiry_result = is_expired(entry_path, expiry_threshold)
+            expiry_result = is_expired(entry_path, expiry_threshold, check_folder_atime)
             # path, creator tuple (name, uid, gid), atime, ctime, mtime
             yield entry_path, expiry_result.is_expired, expiry_result.creators, \
                 expiry_result.atime, expiry_result.ctime, expiry_result.mtime
     os.close(dirfd)
 
-def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold):
+def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold, check_folder_atime):
     """
     Interface function which collects which directories are 'expired'
 
@@ -70,12 +70,12 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
 
     path_info = dict()
     for path, is_expired, creators, atime, ctime, mtime in scan_folder_for_expired(
-        folder_path, expiry_threshold):
+        folder_path, expiry_threshold, check_folder_atime):
         # handles generating the dictionary
 
         path_info[path] = { 
             "path": path, # storing pathname so we keep it when we transfer the dictionary to jsonl
-            "creators": [creator for creator in creators],
+            "creators": [creator for creator in creators if isinstance(creator[1], int) and creator[1] > 0 and creator[1] == creator[2]],
             "expired": is_expired,
             "time_variables": {
                 "atime_datetime": str(datetime.datetime.fromtimestamp(atime)),

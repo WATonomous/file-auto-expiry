@@ -5,7 +5,7 @@ import typer
 app = typer.Typer()
 
 @app.command()
-def collect_file_info(path: str, save_file: str = "", days_for_expiry: int = 10):
+def collect_file_info(path: str, save_file: str = "", days_for_expiry: int = 10, check_folder_atime: bool = False):
     """
     Collects information about the top level paths within a given folder path
     And dumps it into a json file, specified by the save_file flag
@@ -16,7 +16,8 @@ def collect_file_info(path: str, save_file: str = "", days_for_expiry: int = 10)
     collect_expired_file_information(folder_path=path, 
                                      save_file=save_file, 
                                      scrape_time=scrape_time, 
-                                     expiry_threshold=expiry_threshold)
+                                     expiry_threshold=expiry_threshold,
+                                     check_folder_atime=check_folder_atime)
 
 @app.command()
 def collect_creator_info(file_info: str, save_file: str = ""):
