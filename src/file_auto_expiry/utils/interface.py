@@ -50,7 +50,7 @@ def scan_folder_for_expired(folder_path, expiry_threshold, check_folder_atime):
                 expiry_result.atime, expiry_result.ctime, expiry_result.mtime
     os.close(dirfd)
 
-def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold, check_folder_atime):
+def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold, check_folder_atime, overwrite_file=True):
     """
     Interface function which collects which directories are 'expired'
 
@@ -83,26 +83,27 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
                 "mtime_datetime": str(datetime.datetime.fromtimestamp(mtime)),
             }}        
     
-    write_jsonl_information(path_info, save_file, scrape_time, expiry_threshold)
+    write_jsonl_information(path_info, save_file, scrape_time, expiry_threshold, overwrite_file=overwrite_file)
 
-def write_jsonl_information(dict_info, file_path, scrape_time, expiry_threshold=""):
+def write_jsonl_information(dict_info, file_path, scrape_time, expiry_threshold="", overwrite_file=True):
     current_time = time.time()
-
-    with open(file_path, "w") as file:
-        if expiry_threshold=="":
-            file.write(json.dumps({"scrape_time:": scrape_time,
-                               "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time))}) + "\n")
-        else:
-            file.write(json.dumps({"scrape_time:": scrape_time,
-                               "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time)),
-                               "expiry_threshold": str(datetime.datetime.fromtimestamp(expiry_threshold))}) + "\n")
-        file.write(json.dumps({"time_for_scrape_sec": current_time - scrape_time,
-                               "time_for_scrape_min": (current_time - scrape_time) / 60}) + "\n")
-        
+    mode = "w" if overwrite_file else "a+"
+    with open(file_path, mode) as file:
+        if (overwrite_file):
+            if expiry_threshold=="":
+                file.write(json.dumps({"scrape_time:": scrape_time,
+                                "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time))}) + "\n")
+            else:
+                file.write(json.dumps({"scrape_time:": scrape_time,
+                                "scrape_time_datetime": str(datetime.datetime.fromtimestamp(scrape_time)),
+                                "expiry_threshold": str(datetime.datetime.fromtimestamp(expiry_threshold))}) + "\n")
+            file.write(json.dumps({"time_for_scrape_sec": current_time - scrape_time,
+                                "time_for_scrape_min": (current_time - scrape_time) / 60}) + "\n")
+            
         for key in dict_info:
             file.write(json.dumps(dict_info[key]) + "\n") 
 
-def collect_creator_information(path_info_file, save_file, scrape_time):
+def collect_creator_information(path_info_file, save_file, scrape_time, overwrite_file=True):
     """
     Returns a dictionary relating path information to each creator
     Must be given the return value of form similar to the output of 
@@ -146,5 +147,4 @@ def collect_creator_information(path_info_file, save_file, scrape_time):
                             "name": user[0],
                             "uid": user[1],
                             "gid": user[2]}
-        
-    write_jsonl_information(creator_info, save_file, scrape_time)
+    write_jsonl_information(creator_info, save_file, scrape_time, overwrite_file=overwrite_file)
