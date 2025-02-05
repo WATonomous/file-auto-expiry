@@ -23,11 +23,6 @@ def get_file_creator(path):
         return f"user{os.stat(path).st_uid}"
     return creator_tuple(username, os.stat(path).st_uid, os.stat(path).st_gid)
 
-def notify_file_creators():
-    """
-    TODO: implement proper notification system
-    Currently is just the code to print information to a text file
-    """
 
 def scan_folder_for_expired(folder_path, expiry_threshold, check_folder_atime):
     """Generator function which iterates the expired top level folders
@@ -72,7 +67,9 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
     for path, is_expired, creators, atime, ctime, mtime in scan_folder_for_expired(
         folder_path, expiry_threshold, check_folder_atime):
         # handles generating the dictionary
-
+        oldest_time =  min(datetime.datetime.fromtimestamp(atime), datetime.datetime.fromtimestamp(ctime));
+        oldest_time = min(oldest_time, datetime.datetime.fromtimestamp(mtime))
+        days_unused = (datetime.datetime.now() - oldest_time).days
         path_info[path] = { 
             "path": path, # storing pathname so we keep it when we transfer the dictionary to jsonl
             "creators": [creator for creator in creators if isinstance(creator[1], int) and creator[1] > 0 and creator[1] == creator[2]],
@@ -81,6 +78,7 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
                 "atime_datetime": str(datetime.datetime.fromtimestamp(atime)),
                 "ctime_datetime": str(datetime.datetime.fromtimestamp(ctime)),
                 "mtime_datetime": str(datetime.datetime.fromtimestamp(mtime)),
+                "days_unused": days_unused
             }}        
     
     write_jsonl_information(path_info, save_file, scrape_time, expiry_threshold, overwrite_file=overwrite_file)
