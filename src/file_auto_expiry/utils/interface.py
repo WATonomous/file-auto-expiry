@@ -67,9 +67,9 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
     for path, is_expired, creators, atime, ctime, mtime in scan_folder_for_expired(
         folder_path, expiry_threshold, check_folder_atime):
         # handles generating the dictionary
-        oldest_time =  min(datetime.datetime.fromtimestamp(atime), datetime.datetime.fromtimestamp(ctime));
-        oldest_time = min(oldest_time, datetime.datetime.fromtimestamp(mtime))
-        days_unused = (datetime.datetime.now() - oldest_time).days
+        recent_time =  max(datetime.datetime.fromtimestamp(atime), datetime.datetime.fromtimestamp(ctime));
+        recent_time = max(recent_time, datetime.datetime.fromtimestamp(mtime))
+        days_unused = (datetime.datetime.now() - recent_time).days
         path_info[path] = { 
             "path": path, # storing pathname so we keep it when we transfer the dictionary to jsonl
             "creators": [creator for creator in creators if isinstance(creator[1], int) and creator[1] > 0 and creator[1] == creator[2]],
