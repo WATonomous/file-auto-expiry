@@ -102,7 +102,7 @@ def write_jsonl_information(dict_info, file_path, scrape_time, expiry_threshold=
         for key in dict_info:
             file.write(json.dumps(dict_info[key]) + "\n") 
 
-def collect_creator_information(path_info_file, save_file, scrape_time, overwrite_file=True):
+def collect_creator_information(days_for_expiry, path_info_file, save_file_expiry, save_file_deletion, scrape_time, overwrite_file=True):
     """
     Returns a dictionary relating path information to each creator
     Must be given the return value of form similar to the output of 
@@ -120,11 +120,16 @@ def collect_creator_information(path_info_file, save_file, scrape_time, overwrit
     if not os.path.exists(path_info_file):
         raise Exception("Given file for path information does not exist")
 
-    if not save_file:
+    if not save_file_expiry:
         # save_file path not given
-        save_file = f"creator_information_{str(datetime.datetime.fromtimestamp(scrape_time))}.jsonl"
+        save_file_expiry = f"creator_information_to_expire{str(datetime.datetime.fromtimestamp(scrape_time))}.jsonl"
+    if not save_file_deletion:
+        # save_file path not given
+        save_file_deletion = f"creator_information_to_delete{str(datetime.datetime.fromtimestamp(scrape_time))}.jsonl"
 
-    creator_info = dict()
+    creator_info_expiry = dict()
+    creator_info_deletion = dict()
+
     with open(path_info_file, "r+") as file:
         lines = file.readlines()
 
@@ -145,5 +150,8 @@ def collect_creator_information(path_info_file, save_file, scrape_time, overwrit
                             "paths": {path_data["path"]: stats}, 
                             "name": user[0],
                             "uid": user[1],
-                            "gid": user[2]}
-    write_jsonl_information(creator_info, save_file, scrape_time, overwrite_file=overwrite_file)
+                            "gid": user[2]
+                        }
+                
+    write_jsonl_information(creator_info_expiry, save_file_expiry, scrape_time, overwrite_file=overwrite_file)
+    write_jsonl_information(creator_info_deletion, save_file_deletion, scrape_time, overwrite_file=overwrite_file)
