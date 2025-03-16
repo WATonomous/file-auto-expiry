@@ -42,7 +42,7 @@ def scan_folder_for_expired(folder_path, expiry_threshold, check_folder_atime):
             expiry_result = is_expired(entry_path, expiry_threshold, check_folder_atime)
             # path, creator tuple (name, uid, gid), atime, ctime, mtime
             yield entry_path, expiry_result.is_expired, expiry_result.creators, \
-                expiry_result.atime, expiry_result.ctime, expiry_result.mtime
+                expiry_result.atime, expiry_result.ctime, expiry_result.mtime, expiry_result.size
     os.close(dirfd)
 
 def collect_expired_file_information(folder_path, save_file, scrape_time, expiry_threshold, check_folder_atime, overwrite_file=True):
@@ -64,7 +64,7 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
         save_file = f"file_information_{str(datetime.datetime.fromtimestamp(scrape_time))}.jsonl"
 
     path_info = dict()
-    for path, is_expired, creators, atime, ctime, mtime in scan_folder_for_expired(
+    for path, is_expired, creators, atime, ctime, mtime, size in scan_folder_for_expired(
         folder_path, expiry_threshold, check_folder_atime):
         # handles generating the dictionary
         recent_time =  max(datetime.datetime.fromtimestamp(atime), datetime.datetime.fromtimestamp(ctime));
@@ -74,11 +74,13 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
             "path": path, # storing pathname so we keep it when we transfer the dictionary to jsonl
             "creators": [creator for creator in creators if isinstance(creator[1], int) and creator[1] > 0 and creator[1] == creator[2]],
             "expired": is_expired,
-            "time_variables": {
+            "folder_stats": {
                 "atime_datetime": str(datetime.datetime.fromtimestamp(atime)),
                 "ctime_datetime": str(datetime.datetime.fromtimestamp(ctime)),
                 "mtime_datetime": str(datetime.datetime.fromtimestamp(mtime)),
-                "days_unused": days_unused
+                "days_unused": days_unused,
+                "folder_size_bytes": size,
+                "folder_size_mb": size / BYTES_PER_MB
             }}        
     
     write_jsonl_information(path_info, save_file, scrape_time, expiry_threshold, overwrite_file=overwrite_file)
@@ -134,14 +136,14 @@ def collect_creator_information(path_info_file, save_file, scrape_time, overwrit
             if path_data["expired"]:
                 # take all unique creators and make a new dictionary about them
                 for user in path_data["creators"]:
-                    time_vars = path_data["time_variables"]
+                    stats = path_data["time_variables"]
                     if user[1] in creator_info:
-                        creator_info[user[1]]["paths"][path_data["path"]] = time_vars
+                        creator_info[user[1]]["paths"][path_data["path"]] = stats
                         
                     else:
                         if isinstance(user[1], int):
                             creator_info[user[1]] = {
-                            "paths": {path_data["path"]: time_vars}, 
+                            "paths": {path_data["path"]: stats}, 
                             "name": user[0],
                             "uid": user[1],
                             "gid": user[2]}
