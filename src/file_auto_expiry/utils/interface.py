@@ -79,8 +79,8 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
                 "ctime_datetime": str(datetime.datetime.fromtimestamp(ctime)),
                 "mtime_datetime": str(datetime.datetime.fromtimestamp(mtime)),
                 "days_unused": days_unused,
-                "folder_size_bytes": size,
-                "folder_size_mb": size / BYTES_PER_MB
+                "size_bytes": size,
+                "size_mb": size / BYTES_PER_MB
             }}        
     
     write_jsonl_information(path_info, save_file, scrape_time, expiry_threshold, overwrite_file=overwrite_file)
