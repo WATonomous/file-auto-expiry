@@ -58,7 +58,8 @@ def is_expired_filepath(path, file_stat, expiry_threshold):
         creators={creator}, 
         atime=atime, 
         ctime=ctime, 
-        mtime=mtime)
+        mtime=mtime,
+        size=file_stat.st_size)
 
 def timestamps_are_expired(atime, ctime, mtime, expiry_threshold):
     """
@@ -100,6 +101,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold, check_folder_a
     recent_mtime = folder_stat.st_mtime
     folder_creator = get_file_creator(folder_path)
     file_creators.add(folder_creator)
+    size = 0
     is_expired_flag = timestamps_are_expired(recent_atime, recent_ctime, recent_mtime, expiry_threshold)
 
     if check_folder_if_known(path=folder_path):
@@ -137,9 +139,10 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold, check_folder_a
         recent_atime = max(recent_atime, file_expiry_information.atime)
         recent_ctime = max(recent_ctime, file_expiry_information.ctime)
         recent_mtime = max(recent_mtime, file_expiry_information.mtime)
+        size += file_expiry_information.size
     os.close(dirfd)
     return expiry_tuple(is_expired_flag, file_creators, recent_atime, 
-                        recent_ctime, recent_mtime)
+                        recent_ctime, recent_mtime, size)
 
 def check_folder_if_known(path):
     """
