@@ -136,7 +136,7 @@ def collect_creator_information(path_info_file, save_file, scrape_time, overwrit
             if path_data["expired"]:
                 # take all unique creators and make a new dictionary about them
                 for user in path_data["creators"]:
-                    stats = path_data["time_variables"]
+                    stats = path_data["folder_stats"]
                     if user[1] in creator_info:
                         creator_info[user[1]]["paths"][path_data["path"]] = stats
                         
