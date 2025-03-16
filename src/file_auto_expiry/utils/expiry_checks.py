@@ -141,6 +141,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold, check_folder_a
         recent_mtime = max(recent_mtime, file_expiry_information.mtime)
         size += file_expiry_information.size
     os.close(dirfd)
+    print(size)
     return expiry_tuple(is_expired_flag, file_creators, recent_atime, 
                         recent_ctime, recent_mtime, size)
 
