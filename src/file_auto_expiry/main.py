@@ -28,13 +28,27 @@ def collect_creator_info(file_info: str, save_file_expiry: str = "",save_file_de
     It then dumps the new information into another json file, specified by the save_file flag
     """
     scrape_time = time.time()
+    path = "/home/machung/file-auto-expiry/src/bin"
+    """size = 0
+    for p, dirs, files in os.walk(path):
+        for f in files:
+            fp = os.path.join(p, f)
+            size += os.stat(fp).st_size
+ 
+    #   display size        
+    print("Folder size: " + str(size))
+
+
+    salt = os.stat(path).st_size
+ 
+    print("Size (In bytes) of '%s':" % path, salt)"""
     collect_creator_information(days_for_expiry = days_for_expiry, 
                                 path_info_file=file_info, 
                                 save_file_expiry=save_file_expiry, 
                                 save_file_deletion=save_file_deletion,
                                 scrape_time=scrape_time,
                                 overwrite_file=overwrite_file)
-
+    
 
     
 
