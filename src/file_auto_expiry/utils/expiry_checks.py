@@ -106,7 +106,7 @@ def is_expired_folder(folder_path, folder_stat, expiry_threshold, check_folder_a
 
     if check_folder_if_known(path=folder_path):
         return expiry_tuple(is_expired_flag, file_creators, recent_atime, 
-                            recent_ctime, recent_mtime )
+                            recent_ctime, recent_mtime, size)
     
     # Check expiry status of all files and subdirectories within the folder
     dirfd = os.open(folder_path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOATIME)
