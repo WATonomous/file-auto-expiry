@@ -79,12 +79,7 @@ def collect_expired_file_information(folder_path, save_file, scrape_time, expiry
                 "ctime_datetime": str(datetime.datetime.fromtimestamp(ctime)),
                 "mtime_datetime": str(datetime.datetime.fromtimestamp(mtime)),
                 "days_unused": days_unused,
-<<<<<<< HEAD
                 "size_bytes": size
-=======
-                "folder_size_bytes": size,
-                "folder_size_mb": size / BYTES_PER_MB
->>>>>>> 864e366 (add check folder size to scrape collected data)
             }}        
     
     write_jsonl_information(path_info, save_file, scrape_time, expiry_threshold, overwrite_file=overwrite_file)
@@ -139,24 +134,25 @@ def collect_creator_information(days_for_expiry, path_info_file, save_file_expir
         lines = file.readlines()
 
     for line in lines[2:]:
-            # One jsonl line of path inforamtion
-            path_data = json.loads(line)
-            # check if the path is expired
-            if path_data["expired"]:
-                # take all unique creators and make a new dictionary about them
-                for user in path_data["creators"]:
-                    stats = path_data["folder_stats"]
-                    if user[1] in creator_info:
-                        creator_info[user[1]]["paths"][path_data["path"]] = stats
-                        
-                    else:
-                        if isinstance(user[1], int):
-                            creator_info[user[1]] = {
-                            "paths": {path_data["path"]: stats}, 
-                            "name": user[0],
-                            "uid": user[1],
-                            "gid": user[2]
-                        }
+        # One jsonl line of path inforamtion
+        path_data = json.loads(line)
+        # check if the path is expired
+        if path_data["expired"]:
+            # take all unique creators and make a new dictionary about them
+            for user in path_data["creators"]:
+                stats = path_data["folder_stats"]
+                target_dict = creator_info_deletion if stats["days_unused"] >= days_for_expiry + 7 else creator_info_expiry
+
+                if user[1] in target_dict:
+                    target_dict[user[1]]["paths"][path_data["path"]] = stats
+
+                elif isinstance(user[1], int):
+                    target_dict[user[1]] = {
+                        "paths": {path_data["path"]: stats},
+                        "name": user[0],
+                        "uid": user[1],
+                        "gid": user[2]
+                    }
                 
     write_jsonl_information(creator_info_expiry, save_file_expiry, scrape_time, overwrite_file=overwrite_file)
     write_jsonl_information(creator_info_deletion, save_file_deletion, scrape_time, overwrite_file=overwrite_file)
