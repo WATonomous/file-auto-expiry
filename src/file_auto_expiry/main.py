@@ -34,9 +34,6 @@ def collect_creator_info(file_info: str, save_file_expiry: str = "",save_file_de
                                 save_file_deletion=save_file_deletion,
                                 scrape_time=scrape_time,
                                 overwrite_file=overwrite_file)
-    
-
-    
 
 if __name__ == "__main__":
     app()
