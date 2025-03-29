@@ -21,15 +21,17 @@ def collect_file_info(path: str, save_file: str = "", days_for_expiry: int = 10,
                                      overwrite_file=overwrite_file)
 
 @app.command()
-def collect_creator_info(file_info: str, save_file: str = "", overwrite_file: bool = True):
+def collect_creator_info(file_info: str, save_file_expiry: str = "",save_file_deletion: str = "", days_for_expiry: int = 10, overwrite_file: bool = True):
     """
     Tabulates the paths that relate to specific users, based on a given jsonl path
     That jsonl path should be the result of calling the collect_file_info function
     It then dumps the new information into another json file, specified by the save_file flag
     """
     scrape_time = time.time()
-    collect_creator_information(path_info_file=file_info, 
-                                save_file=save_file, 
+    collect_creator_information(days_for_expiry = days_for_expiry, 
+                                path_info_file=file_info, 
+                                save_file_expiry=save_file_expiry, 
+                                save_file_deletion=save_file_deletion,
                                 scrape_time=scrape_time,
                                 overwrite_file=overwrite_file)
 
